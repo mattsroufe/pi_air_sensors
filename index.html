@@ -1,0 +1,221 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Air quality readings</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        font-weight: 100;
+        font-size: 14px;
+      }
+    table, #doughnutChart {
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 64px;
+
+}
+  #doughnutChart {
+    display: block;
+  }
+  #doughnutChart text {
+    font-size: 56px;
+    font-weight: bolder;
+  }
+  td {
+    text-align: center;
+  }
+  .indicator {
+    fill: #e6e6e6
+  }
+  .good {
+    fill: #07bd07;
+  }
+  .warn {
+    fill: orange;
+  }
+  .alert {
+    fill: red;
+  }
+  .progress-ring__circle {
+  transition: 0.4s stroke-dasharray;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+}
+
+    </style>
+  </head>
+  <body>
+    <svg
+   id="doughnutChart"
+   width="200"
+   height="200">
+  <circle
+    class="progress-ring__circle"
+    stroke-width="6"
+    fill="transparent"
+    r="88"
+    cx="100"
+    cy="100"/>
+  <text x="100" y="100" text-anchor="middle" alignment-baseline="central">82</text>
+</svg>
+    <table>
+      <tbody id="indicator-table-body">
+        <tr>
+          <td>
+            <svg height="50" width="50">
+              <circle id="temperature-indicator" class="indicator" cx="25" cy="25" r="15"></circle>
+            </svg>
+          </td>
+          <td>
+              <svg height="50" width="50">
+                <circle id="humidity-indicator" class="indicator" cx="25" cy="25" r="15"></circle>  
+              </svg>
+          </td>
+          <td>
+              <svg height="50" width="50">
+                <circle id="03um-indicator" class="indicator" cx="25" cy="25" r="15"></circle>
+              </svg>
+            </td><td>
+              <svg height="50" width="50">
+                <circle id="05um-indicator" class="indicator" cx="25" cy="25" r="15"></circle>
+              </svg>
+            </td><td>
+              <svg height="50" width="50">
+                <circle id="10um-indicator" class="indicator" cx="25" cy="25" r="15"></circle>
+              </svg>
+            </td><td>
+              <svg height="50" width="50">
+                <circle id="25um-indicator" class="indicator" cx="25" cy="25" r="15"></circle>
+              </svg>
+            </td>
+        </tr>
+      </tbody>
+      <tbody id="data-table-body"></tbody>
+          <tr>
+            <th>Temp</th>
+            <th>Humidity</th>
+            <th>03um</th>
+            <th>05um</th>
+            <th>10um</th>
+            <th>25um</th>
+          </tr>
+          <tr>
+            <td id="temp_c"></td>
+            <td id="humidity"></td>
+            <td id="particles_03um"></td>
+            <td id="particles_05um"></td>
+            <td id="particles_10um"></td>
+            <td id="particles_25um"></td>
+          </tr>
+    </table>
+    <script>
+      const GREEN = "#07bd07";
+      const LIGHT_GRAY = "#e6e6e6"
+
+      fetch('readings.json')
+        .then((response) => {
+          return response.json();
+        })
+        .then((data) => {
+          console.log(data);
+          /*
+          var ctx = document.getElementById('myChart').getContext('2d');
+          var myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: data.map(r => (new Date(r.timestamp * 1000)).toLocaleString('en-NZ')),
+              datasets: [{
+                label: 'Humidity level (%)',
+                data: data.map(r => r.humidity),
+                backgroundColor: [
+                  'rgba(54, 162, 235, 0.2)'
+                ],
+                borderColor: [
+                  'rgba(54, 162, 235, 1)'
+                ],
+                borderWidth: [
+                  1
+                ],
+                pointRadius: 0,
+              }]
+            },
+            options: {
+              scales: {
+                yAxes: [{
+                  ticks: {
+                    suggestedMin: 35,
+                    suggestedMax: 65
+                  },
+                gridLines: {
+                  display: true
+                }
+              }],
+          xAxes: [{
+            gridLines: {
+              display: false
+            },
+            ticks: {
+              display: false
+            }
+          }]
+        }
+    }
+          });
+          */
+          const dataTableBody = document.getElementById("data-table-body");
+          const lastReading = data[data.length - 1];
+          document.getElementById("temp_c").innerText = lastReading.temp_c;
+          document.getElementById("humidity").innerText = lastReading.humidity;
+          document.getElementById("particles_03um").innerText = lastReading.particles_03um;
+          document.getElementById("particles_05um").innerText = lastReading.particles_05um;
+          document.getElementById("particles_10um").innerText = lastReading.particles_10um;
+          document.getElementById("particles_25um").innerText = lastReading.particles_25um;
+          if (lastReading.temp_c < 18) {
+            document.getElementById("temperature-indicator").classList.add("warn");
+          } else {
+            document.getElementById("temperature-indicator").classList.add("good");
+          }
+          if (lastReading.humidity > 35 && lastReading.humidity < 55) {
+            document.getElementById("humidity-indicator").classList.add("good");
+          } else if (lastReading.humidity > 30 && lastReading.humidity < 60) {
+            document.getElementById("humidity-indicator").classList.add("warn");
+          } else {
+            document.getElementById("humidity-indicator").classList.add("alert");
+          }
+          if (lastReading.particles_03um > 499) {
+            document.getElementById("03um-indicator").classList.add("alert");
+          } else if (lastReading.particles_03um > 399) {
+            document.getElementById("03um-indicator").classList.add("warn");
+          } else {
+            document.getElementById("03um-indicator").classList.add("good");
+          }
+          if (lastReading.particles_05um < 200) {
+            document.getElementById("05um-indicator").classList.add("good");
+          }
+          if (lastReading.particles_10um < 50) {
+            document.getElementById("10um-indicator").classList.add("good");
+          }
+          if (lastReading.particles_25um < 5) {
+            document.getElementById("25um-indicator").classList.add("good");
+          }
+      });
+var circle = document.querySelector('circle');
+var radius = circle.r.baseVal.value;
+var circumference = radius * 2 * Math.PI;
+var percent = 85
+
+circle.style.strokeDasharray = `0, ${circumference}`;
+
+window.requestAnimationFrame(() => {
+const offset = circumference - percent / 100 * circumference;
+  circle.style.stroke = GREEN;
+  circle.style.strokeDasharray = `${circumference - offset}, ${circumference}`;
+})
+    </script>
+  </body>
+</html>
+
