@@ -4,3 +4,4 @@ A repo of code I've used to track humidity and particulate levels using raspberr
 pi@raspberrypi:~ $ crontab -l
 */15 * * * * python3 /home/pi/sensors/cronjob.py
 
+![](Screen Shot 2020-05-03 at 9.29.42 AM.png)
