@@ -1,2 +1,4 @@
 CREATE TABLE dht_readings (timestamp integer primary key, temp_f real not null, temp_c real not null, humidity real not null) without rowid;
 CREATE TABLE pm_readings (timestamp integer primary key, pm10_standard integer not null, pm25_standard integer not null, pm100_standard integer not null, pm10_env integer not null, pm25_env integer not null, pm100_env integer not null, particles_03um integer not null, particles_05um integer not null, particles_10um integer not null, particles_25um integer not null, particles_50um integer not null, particles_100um integer not null) without rowid;
+CREATE VIEW latest_dht_reading as select json_object('timestamp', timestamp, 'temp_f', temp_f, 'temp_c', temp_c, 'humidity', humidity) from dht_readings order by timestamp desc limit 1
+/* latest_dht_reading("json_object('timestamp', timestamp, 'temp_f', temp_f, 'temp_c', temp_c, 'humidity', humidity)") */;
