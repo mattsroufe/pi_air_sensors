@@ -16,7 +16,7 @@ while True:
         temperature_f = temperature_c * (9 / 5) + 32
         humidity = dhtDevice.humidity
 
-        conn = sqlite3.connect('./sensors.db')
+        conn = sqlite3.connect('/home/pi/pi_air_sensors/sensors.db')
         c = conn.cursor()
         c.execute("INSERT INTO dht_readings VALUES (?, ?, ?, ?)", [timestamp, temperature_f, temperature_c, humidity])
         conn.commit()
