@@ -1,3 +1,4 @@
+import json
 import sqlite3
 import time
 from datetime import datetime, timedelta
@@ -8,23 +9,27 @@ dhtDevice = adafruit_dht.DHT22(board.D4)
 
 while True:
     try:
+        time_now = datetime.now()
+        timestamp = int(time_now.timestamp())
+
         temperature_c = dhtDevice.temperature
         temperature_f = temperature_c * (9 / 5) + 32
         humidity = dhtDevice.humidity
 
-        time_now = datetime.now()
-        timestamp = time_now.timestamp()
-
-        conn = sqlite3.connect('/home/pi/pi_air_sensors/sensors.db')
+        conn = sqlite3.connect('./sensors.db')
         c = conn.cursor()
-        sql = (
-                "INSERT INTO dht_readings VALUES ({},{},{},{})".format(
-                int(timestamp), temperature_f, temperature_c, humidity
-            )
-        )
-        c.execute(sql)
+        c.execute("INSERT INTO dht_readings VALUES (?, ?, ?, ?)", [timestamp, temperature_f, temperature_c, humidity])
         conn.commit()
         conn.close()
+
+        with open("./dht_readings.json", "w") as write_file:
+            json.dump({
+                "timestamp": timestamp,
+                "humidity": humidity,
+                "temp_c": temperature_c,
+                "temp_f": temperature_f
+            }, write_file)
+
         break
 
     except RuntimeError as error:
